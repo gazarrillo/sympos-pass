@@ -1,0 +1,43 @@
+{
+  "description": "Sympos Test",
+  "organizationName": "Sympos",
+  "teamIdentifier": "W2VS447BUK",
+  "passTypeIdentifier": "pass.com.gazarrillo.sympos",
+  "backgroundColor": "rgb(255,255,255)",
+  "formatVersion": 1,
+  "eventTicket": {
+    "headerFields": [
+      {
+        "key": "time",
+        "value": "10:00pm",
+        "label": "Time"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "date",
+        "value": "30/5/2021",
+        "label": "Date"
+      },
+      {
+        "key": "dress",
+        "value": "Semi-Formal",
+        "label": "Dress Code"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "location",
+        "value": "Calle C5 Caurimare Tepuy, Caurimare, Caracas",
+        "label": "Location"
+      }
+    ],
+    "barcode": [
+      {
+        "format": "PKBarcodeFormatQR",
+        "message": "https://www.sympos.com/",
+        "messageEncoding": "iso-8859-1"
+      }
+    ]
+  }
+}
