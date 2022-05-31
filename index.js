@@ -29,7 +29,7 @@ async function generatePass() {
     });
 
 	// add qr code
-	pass.barcodes = [{"message": pass.serialNumber, "format": "PKBarcodeFormatQR", messageEncoding: "iso-8859-1"}];
+	pass.barcodes = [{"message": pass.serialNumber, "format": "PKBarcodeFormatAztec", messageEncoding: "iso-8859-1"}];
 		
 	// save pass to file
 	const buf = await pass.asBuffer();

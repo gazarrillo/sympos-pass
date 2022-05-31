@@ -31,13 +31,6 @@
         "value": "Calle C5 Caurimare Tepuy, Caurimare, Caracas",
         "label": "Location"
       }
-    ],
-    "barcode": [
-      {
-        "format": "PKBarcodeFormatQR",
-        "message": "https://www.sympos.com/",
-        "messageEncoding": "iso-8859-1"
-      }
     ]
   }
 }
