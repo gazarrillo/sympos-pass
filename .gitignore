@@ -1,4 +1,4 @@
 node_modules
 certs
 .DS_Store
-passes/pass.pkpass
+passes
