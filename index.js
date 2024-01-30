@@ -2,6 +2,8 @@ const { Template } = require("@walletpass/pass-js");
 const fs = require("fs");
 const crypto = require("crypto");
 const prompt = require("prompt-sync")();
+const nodemailer = require("nodemailer");
+const symbology = require("symbology");
 
 // firebase
 const initializeApp = require("firebase/app").initializeApp;
@@ -34,19 +36,22 @@ get(child(ref(db), "events/" + eventID)).then((snapshot) => {
       generatePass(
         snapshot.val()[attendee].firstName,
         snapshot.val()[attendee].lastName,
-        snapshot.val()[attendee].id,
+        snapshot.val()[attendee].size,
         serial
       );
+      //send email to each attendee
+      // Inside your snapshot.exists() loop
+      sendEmail(snapshot.val()[attendee].email, serial, eventID);
     }
   } else {
     console.log("Event not found");
   }
 });
 
-async function generatePass(firstName, lastName, id, serial) {
+async function generatePass(firstName, lastName, size, serial) {
   // creates template
   const template = await Template.load("./template");
-  await template.loadCertificate("certs/certificate.pem", "110500gz");
+  await template.loadCertificate("certs/certificate.pem", "1234");
   await template.images.load("./images");
 
   // creates pass from template
@@ -61,11 +66,11 @@ async function generatePass(firstName, lastName, id, serial) {
     label: "Name",
   });
 
-  if (id != null) {
-    pass.primaryFields.add({
+  if (size != null) {
+    pass.secondaryFields.add({
       key: "id",
-      value: id,
-      label: "ID",
+      value: size,
+      label: "Talla",
     });
   }
 
@@ -82,9 +87,71 @@ async function generatePass(firstName, lastName, id, serial) {
   const buf = await pass.asBuffer();
 
   // upload passes to firebase storage
-  uploadBytes(sref(storage, "events/" + eventID + "/" + serial + ".pkpass"), buf).then(
-    () => {
-      console.log("Pass: " + serial + " uploaded!");
-    }
+  await uploadBytes(
+    sref(storage, `events/${eventID}/${serial}.pkpass`),
+    buf
   );
+
+  console.log("Pass generated:" + serial);
+}
+
+// generate aztec code svg for each attendee
+async function generateAztecCode(serial) {
+  try {
+    const result = await symbology.createStream(
+      {
+        symbology: symbology.SymbologyType.AZTEC,
+        encoding: symbology.EncodingMode.UNICODE_MODE,
+      },
+      serial,
+      symbology.OutputType.SVG,
+    );
+    return result.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+
+async function sendEmail(email, serial, eventID) {
+
+  // create transporter object using the default SMTP transport
+  let transporter = nodemailer.createTransport({
+    host: "email-smtp.us-east-2.amazonaws.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: "AKIA5FTZBMC7SJHDDOFD",
+      pass: "BHNDy3iN0DGkh2Rsg6fogWPfjQfz/SKlYNSNSElbJNMo",
+    },
+  });
+
+  const svgData = await generateAztecCode(serial, eventID)
+  const cidValue = `${serial}@nodemailer.com`; // Generate a unique CID value
+
+  const passUrl = `https://firebasestorage.googleapis.com/v0/b/sympos-fb5b3.appspot.com/o/${encodeURIComponent(`events/${eventID}/${serial}.pkpass`)}?alt=media`;
+
+  let htmlContent = `
+    <html>
+      <body>
+        <p>Thank you for registering for the event. Please find your event pass below.</p>
+        <img src="cid:${cidValue}" alt="Event Pass" />
+        <p><a href="${passUrl}">Download Pass</a></p>
+      </body>
+    </html>
+  `;
+
+  // send mail with HTML template
+  let info = await transporter.sendMail({
+    from: "'Liga Universitaria de Padel' pass@sympos.app", // sender address
+    to: email,
+    subject: "Event Pass",
+    html: htmlContent,
+    attachments: [{
+      filename: `${serial}.svg`, // The filename of the attachment
+      content: svgData, // The svg data
+      cid: cidValue, // The Content-ID (CID) to reference in the HTML img src
+    }]
+  });
 }

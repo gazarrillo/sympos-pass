@@ -10,6 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "@walletpass/pass-js": "^6.9.1",
-    "prompt-sync": "^4.2.0"
+    "firebase": "^10.7.2",
+    "nodemailer": "^6.9.8",
+    "prompt-sync": "^4.2.0",
+    "symbology": "^4.0.1"
   }
 }

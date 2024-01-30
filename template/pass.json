@@ -1,35 +1,35 @@
 {
-  "description": "Sympos Test",
+  "description": "Liga Universitaria de Padel",
   "organizationName": "Sympos",
   "teamIdentifier": "W2VS447BUK",
   "passTypeIdentifier": "pass.com.gazarrillo.sympos",
-  "backgroundColor": "rgb(255,255,255)",
+  "backgroundColor": "rgb(195,195,195)",
   "formatVersion": 1,
+  "locations": [
+    {
+      "latitude": 10.497769011907108,
+      "longitude": -66.78507054243015
+    }
+  ],
+  "expirationDate": "2024-02-05T00:00:00Z",
   "eventTicket": {
-    "headerFields": [
-      {
-        "key": "time",
-        "value": "10:00pm",
-        "label": "Time"
-      }
-    ],
     "auxiliaryFields": [
       {
         "key": "date",
-        "value": "30/5/2021",
-        "label": "Date"
+        "value": "4/2/24 - 5/2/24",
+        "label": "Fecha"
       },
       {
-        "key": "dress",
-        "value": "Semi-Formal",
-        "label": "Dress Code"
+        "key": "time",
+        "value": "11:00am - 11:00pm",
+        "label": "Hora"
       }
     ],
     "secondaryFields": [
       {
         "key": "location",
-        "value": "Calle C5 Caurimare Tepuy, Caurimare, Caracas",
-        "label": "Location"
+        "value": "Universidad Metropolitana",
+        "label": "Lugar"
       }
     ]
   }
