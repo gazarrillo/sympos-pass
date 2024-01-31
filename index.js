@@ -35,13 +35,12 @@ get(child(ref(db), "events/" + eventID)).then((snapshot) => {
       //generate pass for each attendee
       generatePass(
         snapshot.val()[attendee].name,
-        snapshot.val()[attendee].lastName,
         snapshot.val()[attendee].size,
         serial
       );
       //send email to each attendee
       // Inside your snapshot.exists() loop
-      sendEmail(snapshot.val()[attendee].email, snapshot.val()[attendee].name. serial, eventID);
+      sendEmail(snapshot.val()[attendee].email, snapshot.val()[attendee].name, serial, eventID);
     }
   } else {
     console.log("Event not found");
@@ -106,13 +105,12 @@ async function generateAztecCode(serial) {
       serial,
       symbology.OutputType.PNG,
     );
+    console.log(result.message, result)
+    console.log("Aztec code generated:" + serial);
     // upload png to firebase storage
-    uploadBytes(
+    await uploadBytes(
       sref(storage, `events/${eventID}/${serial}/${serial}.png`),
-      result.data,
-      {
-        contentType: "image/png",
-      }
+      result.stream
     );
   } catch (error) {
     console.error(error);
@@ -122,6 +120,8 @@ async function generateAztecCode(serial) {
 
 
 async function sendEmail(email, name, serial, eventID) {
+
+  await generateAztecCode(serial);
 
   // create transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
@@ -133,8 +133,6 @@ async function sendEmail(email, name, serial, eventID) {
       pass: "BHNDy3iN0DGkh2Rsg6fogWPfjQfz/SKlYNSNSElbJNMo",
     },
   });
-
-  await generateAztecCode(serial);
 
   const barcodeURL = `https://firebasestorage.googleapis.com/v0/b/sympos-fb5b3.appspot.com/o/${encodeURIComponent(`events/${eventID}/${serial}/${serial}.png`)}?alt=media`;
   const passUrl = `https://firebasestorage.googleapis.com/v0/b/sympos-fb5b3.appspot.com/o/${encodeURIComponent(`events/${eventID}/${serial}/${serial}.pkpass`)}?alt=media`;
