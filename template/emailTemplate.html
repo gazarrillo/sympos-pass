@@ -25,6 +25,12 @@
             line-height: 1.6;
         }
 
+        /* center a */
+        .wallet {
+            text-align: center;
+            display: block;
+        }
+
         /* Container for the email content */
         .container {
             max-width: 600px;
@@ -70,11 +76,11 @@
 
 <body>
     <div class="container">
-        <img width="200"
+        <img width="150"
             src="https://firebasestorage.googleapis.com/v0/b/sympos-fb5b3.appspot.com/o/lup_logo.png?alt=media&token=1f85dcd5-e171-4efd-bada-967a174c2f42"
             alt="">
-        <h1>¡Bienvenido al torneo de la Liga Universitaria de Pádel!</h1>
-        <p>Estimado {{firstName}},</p>
+        <h1>¡Bienvenido a la Liga Universitaria de Pádel!</h1>
+        <p>Estimado {{name}},</p>
 
         <p>¡Nos alegra mucho confirmar que tu inscripción al torneo de la Liga Universitaria de Pádel ha sido completada
             con éxito!</p>
@@ -89,7 +95,7 @@
                 target="_blank">www.instagram.com/ligauniversitariadepadel</a></p>
 
         <p>Si tienes alguna duda o consulta, no dudes en contactarnos a través de nuestro número de atención al jugador:
-            (+58)424-1676409</p>
+            (+58) 424-1676409</p>
 
         <p>Gracias por ser parte de la Liga Universitaria de Pádel.</p>
 
@@ -99,8 +105,8 @@
         <p class="signature">El equipo de la Liga Universitaria de Pádel</p>
 
         <p>#SomosLaLiga #LUP</p>
-        <a href="{{barcodeURL}}" class="button">qr</a><br></br>
-        <a href="{{passURL}}"><img width="200"
+        <a class="wallet" href="{{barcodeURL}}"></a><br></br>
+        <a class="wallet" href="{{passURL}}"><img width="150"
                     src="https://firebasestorage.googleapis.com/v0/b/sympos-fb5b3.appspot.com/o/apple_wallet.png?alt=media&token=87c52e51-616c-41f7-b267-9cec5d3c0940"
                     alt=""></a>
         <p>Powered by:</p><img width="100"

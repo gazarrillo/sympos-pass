@@ -34,21 +34,21 @@ get(child(ref(db), "events/" + eventID)).then((snapshot) => {
       set(ref(db, "events/" + eventID + "/" + attendee + "/checkedIn"), false);
       //generate pass for each attendee
       generatePass(
-        snapshot.val()[attendee].firstName,
+        snapshot.val()[attendee].name,
         snapshot.val()[attendee].lastName,
         snapshot.val()[attendee].size,
         serial
       );
       //send email to each attendee
       // Inside your snapshot.exists() loop
-      sendEmail(snapshot.val()[attendee].email, snapshot.val()[attendee].firstName, snapshot.val()[attendee].lastName, serial, eventID);
+      sendEmail(snapshot.val()[attendee].email, snapshot.val()[attendee].name. serial, eventID);
     }
   } else {
     console.log("Event not found");
   }
 });
 
-async function generatePass(firstName, lastName, size, serial) {
+async function generatePass(name, size, serial) {
   // creates template
   const template = await Template.load("./template");
   await template.loadCertificate("certs/certificate.pem", "1234");
@@ -62,7 +62,7 @@ async function generatePass(firstName, lastName, size, serial) {
   // customize pass
   pass.primaryFields.add({
     key: "name",
-    value: firstName + " " + lastName,
+    value: name,
     label: "Name",
   });
 
@@ -121,7 +121,7 @@ async function generateAztecCode(serial) {
 }
 
 
-async function sendEmail(email, firstName, lastName, serial, eventID) {
+async function sendEmail(email, name, serial, eventID) {
 
   // create transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
@@ -136,12 +136,6 @@ async function sendEmail(email, firstName, lastName, serial, eventID) {
 
   await generateAztecCode(serial);
 
-  // {
-  //   "latitude": 10.497769011907108,
-  //   "longitude": -66.78507054243015
-  // }
-  return;
-
   const barcodeURL = `https://firebasestorage.googleapis.com/v0/b/sympos-fb5b3.appspot.com/o/${encodeURIComponent(`events/${eventID}/${serial}/${serial}.png`)}?alt=media`;
   const passUrl = `https://firebasestorage.googleapis.com/v0/b/sympos-fb5b3.appspot.com/o/${encodeURIComponent(`events/${eventID}/${serial}/${serial}.pkpass`)}?alt=media`;
   
@@ -151,8 +145,7 @@ async function sendEmail(email, firstName, lastName, serial, eventID) {
   // replace placeholders with actual data
   htmlTemplate = htmlTemplate.replace("{{barcodeURL}}", barcodeURL);
   htmlTemplate = htmlTemplate.replace("{{passURL}}", passUrl);
-  htmlTemplate = htmlTemplate.replace("{{firstName}}", firstName);
-  htmlTemplate = htmlTemplate.replace("{{lastName}}", lastName);
+  htmlTemplate = htmlTemplate.replace("{{name}}", name);
 
   let info = await transporter.sendMail({
     from: "'Liga Universitaria de Padel' pass@sympos.app", // sender address
