@@ -41,7 +41,7 @@ get(child(ref(db), "events/" + eventID)).then((snapshot) => {
       );
       //send email to each attendee
       // Inside your snapshot.exists() loop
-      sendEmail(snapshot.val()[attendee].email, serial, eventID);
+      sendEmail(snapshot.val()[attendee].email, snapshot.val()[attendee].firstName, snapshot.val()[attendee].lastName, serial, eventID);
     }
   } else {
     console.log("Event not found");
@@ -88,14 +88,14 @@ async function generatePass(firstName, lastName, size, serial) {
 
   // upload passes to firebase storage
   await uploadBytes(
-    sref(storage, `events/${eventID}/${serial}.pkpass`),
+    sref(storage, `events/${eventID}/${serial}/${serial}.pkpass`),
     buf
   );
 
   console.log("Pass generated:" + serial);
 }
 
-// generate aztec code svg for each attendee
+// generate aztec code png for each attendee
 async function generateAztecCode(serial) {
   try {
     const result = await symbology.createStream(
@@ -104,9 +104,16 @@ async function generateAztecCode(serial) {
         encoding: symbology.EncodingMode.UNICODE_MODE,
       },
       serial,
-      symbology.OutputType.SVG,
+      symbology.OutputType.PNG,
     );
-    return result.data;
+    // upload png to firebase storage
+    uploadBytes(
+      sref(storage, `events/${eventID}/${serial}/${serial}.png`),
+      result.data,
+      {
+        contentType: "image/png",
+      }
+    );
   } catch (error) {
     console.error(error);
     throw error;
@@ -114,7 +121,7 @@ async function generateAztecCode(serial) {
 }
 
 
-async function sendEmail(email, serial, eventID) {
+async function sendEmail(email, firstName, lastName, serial, eventID) {
 
   // create transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
@@ -127,31 +134,33 @@ async function sendEmail(email, serial, eventID) {
     },
   });
 
-  const svgData = await generateAztecCode(serial, eventID)
-  const cidValue = `${serial}@nodemailer.com`; // Generate a unique CID value
+  await generateAztecCode(serial);
 
-  const passUrl = `https://firebasestorage.googleapis.com/v0/b/sympos-fb5b3.appspot.com/o/${encodeURIComponent(`events/${eventID}/${serial}.pkpass`)}?alt=media`;
+  // {
+  //   "latitude": 10.497769011907108,
+  //   "longitude": -66.78507054243015
+  // }
+  return;
 
-  let htmlContent = `
-    <html>
-      <body>
-        <p>Thank you for registering for the event. Please find your event pass below.</p>
-        <img src="cid:${cidValue}" alt="Event Pass" />
-        <p><a href="${passUrl}">Download Pass</a></p>
-      </body>
-    </html>
-  `;
+  const barcodeURL = `https://firebasestorage.googleapis.com/v0/b/sympos-fb5b3.appspot.com/o/${encodeURIComponent(`events/${eventID}/${serial}/${serial}.png`)}?alt=media`;
+  const passUrl = `https://firebasestorage.googleapis.com/v0/b/sympos-fb5b3.appspot.com/o/${encodeURIComponent(`events/${eventID}/${serial}/${serial}.pkpass`)}?alt=media`;
+  
+  // import html file
+  let htmlTemplate = fs.readFileSync("./template/emailTemplate.html", "utf8");
 
-  // send mail with HTML template
+  // replace placeholders with actual data
+  htmlTemplate = htmlTemplate.replace("{{barcodeURL}}", barcodeURL);
+  htmlTemplate = htmlTemplate.replace("{{passURL}}", passUrl);
+  htmlTemplate = htmlTemplate.replace("{{firstName}}", firstName);
+  htmlTemplate = htmlTemplate.replace("{{lastName}}", lastName);
+
   let info = await transporter.sendMail({
     from: "'Liga Universitaria de Padel' pass@sympos.app", // sender address
     to: email,
-    subject: "Event Pass",
-    html: htmlContent,
-    attachments: [{
-      filename: `${serial}.svg`, // The filename of the attachment
-      content: svgData, // The svg data
-      cid: cidValue, // The Content-ID (CID) to reference in the HTML img src
-    }]
+    subject: "Registro Liga Universitaria de Padel", // Subject line
+    html: htmlTemplate,
   });
+
+  // wait for 1 second to avoid rate limiting
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 }
