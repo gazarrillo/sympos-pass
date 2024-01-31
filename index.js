@@ -105,12 +105,15 @@ async function generateAztecCode(serial) {
       serial,
       symbology.OutputType.PNG,
     );
-    console.log(result.message, result)
-    console.log("Aztec code generated:" + serial);
+
+    // Convert base64 string to Blob/Buffer
+    const base64Content = result.data.split(';base64,').pop(); // Remove the "data:image/png;base64," part
+    const buf = Buffer.from(base64Content, 'base64');
+
     // upload png to firebase storage
     await uploadBytes(
       sref(storage, `events/${eventID}/${serial}/${serial}.png`),
-      result.stream
+      buf
     );
   } catch (error) {
     console.error(error);
