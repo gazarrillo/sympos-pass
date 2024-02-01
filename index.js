@@ -145,6 +145,7 @@ async function sendEmail(email, name, serial, eventID) {
 
   // replace placeholders with actual data
   htmlTemplate = htmlTemplate.replace("{{barcodeURL}}", barcodeURL);
+  htmlTemplate = htmlTemplate.replace("{{barcodeURL}}", barcodeURL);
   htmlTemplate = htmlTemplate.replace("{{passURL}}", passUrl);
   htmlTemplate = htmlTemplate.replace("{{name}}", name);
 
