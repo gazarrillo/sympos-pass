@@ -130,12 +130,12 @@ async function sendEmail(email, name, serial, eventID) {
 
   // create transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
-    host: "email-smtp.us-east-2.amazonaws.com",
+    host: "smtp.forwardemail.net",
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: "AKIA5FTZBMC7SJHDDOFD",
-      pass: "BHNDy3iN0DGkh2Rsg6fogWPfjQfz/SKlYNSNSElbJNMo",
+      user: "*@sympos.app",
+      pass: "a62da15360c9705bf2bed657",
     },
   });
 
