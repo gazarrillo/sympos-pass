@@ -101,6 +101,8 @@ async function generateAztecCode(serial) {
       {
         symbology: symbology.SymbologyType.AZTEC,
         encoding: symbology.EncodingMode.UNICODE_MODE,
+        showHumanReadableText: false,
+        scale: 3.0,
       },
       serial,
       symbology.OutputType.PNG,
@@ -155,6 +157,8 @@ async function sendEmail(email, name, serial, eventID) {
     subject: "Registro Liga Universitaria de Padel", // Subject line
     html: htmlTemplate,
   });
+
+  console.log("Email sent: " + info.messageId);
 
   // wait for 1 second to avoid rate limiting
   await new Promise((resolve) => setTimeout(resolve, 1000));
